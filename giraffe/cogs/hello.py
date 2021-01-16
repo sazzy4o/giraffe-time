@@ -3,16 +3,17 @@ import os
 
 from discord.ext import commands
 
-class Greetings(commands.Cog):
+class Hello(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._last_member = None
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        channel = member.guild.system_channel
-        if channel is not None:
-            await channel.send('Welcome {0.mention}.'.format(member))
+    # Leaving this here in case we need a listener example
+    # @commands.Cog.listener()
+    # async def on_member_join(self, member):
+    #     channel = member.guild.system_channel
+    #     if channel is not None:
+    #         await channel.send('Welcome {0.mention}.'.format(member))
 
     @commands.command()
     async def hello(self, ctx, *, member: discord.Member = None):
@@ -23,7 +24,3 @@ class Greetings(commands.Cog):
         else:
             await ctx.send('Hello {0.name}... This feels familiar.'.format(member))
         self._last_member = member
-
-bot = commands.Bot(command_prefix='/')
-bot.add_cog(Greetings(bot))
-bot.run(os.getenv('DISCORD_TOKEN'))

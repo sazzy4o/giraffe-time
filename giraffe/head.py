@@ -1,6 +1,9 @@
 import discord
 import os
 
+from discord.ext import commands
+from cogs.hello import Hello
+
 settings = {}
 with open('/app/settings.cfg', 'r') as configFile:
     for line in configFile:
@@ -8,19 +11,7 @@ with open('/app/settings.cfg', 'r') as configFile:
         settings[setting[0]] = setting[1].rstrip()
 
 client = discord.Client()
-PREFIX = settings.get('COMMAND_PREFIX')
-@client.event
-async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith(PREFIX + 'hello'):
-        await message.channel.send('Hello!')
-
-
-
-client.run(settings.get('DISCORD_TOKEN'))
+bot = commands.Bot(command_prefix=settings.get('COMMAND_PREFIX'))
+bot.add_cog(Hello(bot))
+bot.run(settings.get('DISCORD_TOKEN'))
