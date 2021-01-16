@@ -1,21 +1,29 @@
 import discord
 import os
 
-from dotenv import load_dotenv
-load_dotenv()
+from discord.ext import commands
 
-client = discord.Client()
+class Greetings(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self._last_member = None
 
-@client.event
-async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        channel = member.guild.system_channel
+        if channel is not None:
+            await channel.send('Welcome {0.mention}.'.format(member))
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+    @commands.command()
+    async def hello(self, ctx, *, member: discord.Member = None):
+        """Says hello"""
+        member = member or ctx.author
+        if self._last_member is None or self._last_member.id != member.id:
+            await ctx.send('Hello {0.name}~'.format(member))
+        else:
+            await ctx.send('Hello {0.name}... This feels familiar.'.format(member))
+        self._last_member = member
 
-    if message.content.startswith('hello'):
-        await message.channel.send('Hello!')
-
-client.run(os.getenv('DISCORD_TOKEN'))
+bot = commands.Bot(command_prefix='/')
+bot.add_cog(Greetings(bot))
+bot.run(os.getenv('DISCORD_TOKEN'))
