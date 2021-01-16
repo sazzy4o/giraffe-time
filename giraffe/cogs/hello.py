@@ -16,7 +16,7 @@ class Hello(commands.Cog):
     #         await channel.send('Welcome {0.mention}.'.format(member))
 
     @commands.command()
-    async def hello(self, ctx, *, member: discord.Member = None):
+    async def hello(self, ctx:commands.Context, *, member: discord.Member = None):
         """Says hello"""
         member = member or ctx.author
         if self._last_member is None or self._last_member.id != member.id:
@@ -24,3 +24,5 @@ class Hello(commands.Cog):
         else:
             await ctx.send('Hello {0.name}... This feels familiar.'.format(member))
         self._last_member = member
+
+        self.bot.delete_message(ctx.message)
