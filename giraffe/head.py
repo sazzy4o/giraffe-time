@@ -10,5 +10,9 @@ from cogs.hello import Hello
 client = discord.Client()
 
 bot = commands.Bot(command_prefix='/')
+
+# Add cogs here
 bot.add_cog(Hello(bot))
+
+
 bot.run(os.getenv('DISCORD_TOKEN'))
