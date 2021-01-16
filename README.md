@@ -1,4 +1,5 @@
 # Giraffe Time
+Uses Python3
 
 ## Install
 ```
