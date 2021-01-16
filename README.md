@@ -1,5 +1,6 @@
 # Giraffe Time
 Uses Python3
+Needs pip to install dependencies
 
 ## Install
 ```
