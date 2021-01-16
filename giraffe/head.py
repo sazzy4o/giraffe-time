@@ -2,7 +2,7 @@ import discord
 import os
 
 settings = {}
-with open('../settings.cfg', 'r') as configFile:
+with open('/app/settings.cfg', 'r') as configFile:
     for line in configFile:
         setting = line.split('=')
         settings[setting[0]] = setting[1].rstrip()
