@@ -20,6 +20,7 @@ from discord.ext import commands
 from cogs.hello import Hello
 from cogs.role import *
 from cogs.reminder import Reminder
+from cogs.roles import Roles
 
 intent = discord.Intents.all()
 client = discord.Client(intents=intent)
@@ -30,6 +31,6 @@ bot = commands.Bot(command_prefix='!', intents=intent)
 bot.add_cog(Role(bot))
 bot.add_cog(Hello(bot,session))
 bot.add_cog(Reminder(bot,session))
-
+bot.add_cog(Roles(bot,session))
 
 bot.run(os.getenv('DISCORD_TOKEN'))
