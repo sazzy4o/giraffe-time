@@ -1,5 +1,6 @@
 # Giraffe Time Docs
-
+## Inviting the Bot
+Use [this invite link](https://discord.com/api/oauth2/authorize?client_id=800427088343465985&permissions=268626944&scope=bot) to invite the bot to your server!
 ## Commands
 
 | Command               | Usage                             | Description                                                                                                  | Aliases                     | Requires Admin |
