@@ -40,9 +40,14 @@ class Reminder(commands.Cog):
     def schedule_message(self, message: ReminderMessage):
         self.scheduler.add_job(send_message, 'date', run_date=message.time, args=[self.bot,self.session,message])
 
-    # /listreminders add <role> <time> <message>
+    # /list_reminders add <role> <time> <message>
     @commands.command()
     async def list_reminders(self, ctx: commands.Context, *, member: discord.Member = None):
+        """List all reminders"""
+        if not ctx.message.author.guild_permissions.administrator:
+            await ctx.send(f'{ctx.message.author.mention} Only an administrator may perform this action.')
+            return
+
         rows = self.session.execute(
             "select * from giraffetime.reminders where guild=%s;",
             (ctx.guild.id,)
@@ -52,10 +57,41 @@ class Reminder(commands.Cog):
 
         await ctx.send(f"```{tabulate(rows_formatted, headers=['Channel', 'Role', 'Time', 'Message', 'Id'], tablefmt='orgtbl')}```")
 
+    # /list_reminders add <role> <time> <message>
+    @commands.command(aliases=['delete_reminder'])
+    async def delete_reminders(self, ctx: commands.Context, *args, member: discord.Member = None):
+        """Delete a reminder"""
+        if not ctx.message.author.guild_permissions.administrator:
+            await ctx.send(f'{ctx.message.author.mention} Only an administrator may perform this action.')
+            return
+
+        success = []
+        errors = []
+
+        for arg in args:
+            try:
+                self.session.execute(
+                    "DELETE FROM giraffetime.reminders WHERE id=%s;", 
+                    (uuid.UUID(arg),)
+                )
+            except Exception as e:
+                errors.append(e.message)
+            else:
+                success.append(arg)
+
+        await ctx.send(f'Deleted reminders in: {args}')
+
+        if errors:
+            await ctx.send(f'Errors: {errors}')
+
     # /reminder add <role> <time> <message>
-    @commands.command()
+    @commands.command(aliases=['create_reminder'])
     async def remind(self, ctx: commands.Context, *args, member: discord.Member = None):
-        """Reminds user"""
+        """Set a reminder"""
+        if not ctx.message.author.guild_permissions.administrator:
+            await ctx.send(f'{ctx.message.author.mention} Only an administrator may perform this action.')
+            return
+
         member = member or ctx.author
         message: discord.Message = ctx.message
 

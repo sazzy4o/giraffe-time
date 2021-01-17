@@ -19,7 +19,7 @@ class Utils(commands.Cog):
 
     @commands.command(aliases=['prune', 'purge'])
     async def clear(self, ctx, *, count: str):
-        """The chat has been cleared ~ Aquafina water bottle"""
+        """Clear chat"""
         if not ctx.message.author.guild_permissions.administrator:
             await ctx.send(f'{ctx.message.author.mention} Only an administrator may perform this action.')
         messages = [] #Empty list to put all the messages in the log
@@ -44,7 +44,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     async def set_timeout(self, ctx, *, timeout: str):
-        """The chat has been cleared ~ Aquafina water bottle"""
+        """Change timeout setting"""
         if ctx.message.author.guild_permissions.administrator:
             if timeout.lower() == "none":
                 self.session.execute("INSERT INTO giraffetime.settings (guild, msg_timeout) VALUES (%s, NULL)", (ctx.guild.id,))
@@ -57,7 +57,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     async def remove_caller(self, ctx, *, new_caller: str):
-        """The chat has been cleared ~ Aquafina water bottle"""
+        """Change remove caller setting"""
         if ctx.message.author.guild_permissions.administrator:
             if new_caller.lower() == "true":
                 self.session.execute("INSERT INTO giraffetime.settings (guild, delete_user_cmd) VALUES (%s, True)", (ctx.guild.id,))
@@ -70,7 +70,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     async def create_missing_role(self, ctx, *, new_state: str):
-        """The chat has been cleared ~ Aquafina water bottle"""
+        """Change create missing role setting"""
         if ctx.message.author.guild_permissions.administrator:
             if new_state.lower() == "true":
                 self.session.execute("INSERT INTO giraffetime.settings (guild, create_roles) VALUES (%s, True)", (ctx.guild.id,))

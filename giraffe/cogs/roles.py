@@ -50,7 +50,7 @@ class Roles(commands.Cog):
 
     @commands.command(aliases=['join'])
     async def role_join(self, ctx: commands.Context, *, name: str):
-        """Join a role"""
+        """Join a self-assignable role"""
 
         timeout = settings.timeout(ctx.guild, self._session)
         member = ctx.message.author
@@ -71,7 +71,7 @@ class Roles(commands.Cog):
 
     @commands.command(aliases=['leave'])
     async def role_leave(self, ctx: commands.Context, *, name: str):
-        """Leave role"""
+        """Leave a self-assignable role"""
 
         timeout = settings.timeout(ctx.guild, self._session)
         member = ctx.message.author
@@ -189,6 +189,7 @@ class Roles(commands.Cog):
 
     @commands.command(aliases=['list', 'roles'])
     async def list_roles(self, ctx):
+        """List all self-assignables roles"""
         settings.timeout(ctx.guild, self._session)
         if settings.delete_user_command(ctx.guild, self._session):
             await ctx.message.delete()

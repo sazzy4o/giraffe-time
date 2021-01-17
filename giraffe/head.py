@@ -26,7 +26,7 @@ from cogs.roles import Roles
 intent = discord.Intents.all()
 client = discord.Client(intents=intent)
 
-bot = commands.Bot(command_prefix='%', intents=intent)
+bot = commands.Bot(command_prefix='/', intents=intent)
 
 # Add cogs here
 bot.add_cog(Fun(bot,session))

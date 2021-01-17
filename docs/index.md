@@ -1,37 +1,20 @@
-## Welcome to GitHub Pages
+# Giraffe Time Docs
 
-You can use the [editor on GitHub](https://github.com/sazzy4o/giraffe-time/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## Commands
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/sazzy4o/giraffe-time/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+| Command               | Usage                             | Description                                                                                                  | Aliases                     | Requires Admin |
+| --------------------- |:-------------:                    |:----------------------:                                                                                      | :-----:                     | -----:|
+| `/help`               | `/help`                           | List commands and usage                                                                                      | [`/add`, `/add_role`]       | ✔️ |
+| `/role_add`           | `/role_add <role>`                | If the role exists, add it to the list of self-assignable roles. Otherwise create a self-assignable role.    | [`/add`, `/add_role`]       | ✔️ |
+| `/role_remove`        | `/role_remove <role>`             | Remove a role from the list of self-assignables. Does not delete the role.                                   | [`/remove`, `/remove_role`] | ✔️ |
+| `/start_new_season`   | `/start_new_season`               | Remove roles from all                                                                                        | [`/start_new_semester`]     | ✔️ |
+| `/role_join`          | `/role_join <role>`               | Join a self-assignable role                                                                                  | [`/join`]                   | ❌ |
+| `/role_leave`         | `/role_leave <role>`              | Leave a self-assignable role                                                                                 | [`/leave`]                  | ❌ |
+| `/list_roles`         | `/list_roles`                     | List all self-assignables roles                                                                              | [`/list`, `/roles`]         | ❌ |
+| `/remind`             | `/remind <role> <time> <message>` | Set a reminder                                                                                               | [`/create_reminder`]        | ✔️ |
+| `/delete_reminder`    | `/delete_reminder <reminder_id>`  | Delete a reminder                                                                                            | [`/delete_reminder`]        | ✔️ |
+| `/list_reminders`     | `/list_reminders`                 | List all reminders                                                                                           |                             | ✔️ |
+| `/clear`              | `/clear`                          | Clear chat                                                                                                   | [`/prune`, `/purge`]        | ✔️ |
+| `/set_timeout`        | `/set_timeout <timeout>`          | Change timeout setting                                                                                       |                             | ✔️ |
+| `/remove_caller`      | `/remove_caller <boolean>`        | Change remove caller setting                                                                                 |                             | ✔️ |
+| `/create_missing_role`| `/create_missing_role <boolean>`  | Change create missing role setting                                                                           |                             | ✔️ |
