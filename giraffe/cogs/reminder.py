@@ -48,9 +48,9 @@ class Reminder(commands.Cog):
             (ctx.guild.id,)
         )
 
-        rows_formatted = [[str(self.bot.get_channel(x.channel)),x.role,x.time,x.message] for x in rows]
+        rows_formatted = [[str(self.bot.get_channel(x.channel)),x.role,x.time,x.message[:17]+"...",x.id] for x in rows]
 
-        await ctx.send(f"```{tabulate(rows_formatted, headers=['Channel', 'Role', 'Time', 'Message'], tablefmt='orgtbl')}```")
+        await ctx.send(f"```{tabulate(rows_formatted, headers=['Channel', 'Role', 'Time', 'Message', 'Id'], tablefmt='orgtbl')}```")
 
     # /reminder add <role> <time> <message>
     @commands.command()
