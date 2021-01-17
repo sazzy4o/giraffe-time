@@ -38,7 +38,6 @@ class Utils(commands.Cog):
     @commands.command()
     async def remove_caller(self, ctx, *, new_caller: str):
         """The chat has been cleared ~ Aquafina water bottle"""
-        """The chat has been cleared ~ Aquafina water bottle"""
         if ctx.message.author.guild_permissions.administrator:
             if new_caller.lower() == "true":
                 settings.DELETE_USER_COMMAND = True
@@ -46,5 +45,18 @@ class Utils(commands.Cog):
             elif new_caller.lower() == "false":
                 settings.DELETE_USER_COMMAND = False
                 await ctx.send(f"Set delete callers message to false")
+            else:
+                await ctx.send(f"Invalid input")
+
+    @commands.command()
+    async def create_missing_role(self, ctx, *, new_state: str):
+        """The chat has been cleared ~ Aquafina water bottle"""
+        if ctx.message.author.guild_permissions.administrator:
+            if new_state.lower() == "true":
+                settings.CREATE_NEW_ROLE = True
+                await ctx.send(f"Set create missing roles to true")
+            elif new_state.lower() == "false":
+                settings.CREATE_NEW_ROLE = False
+                await ctx.send(f"Set create missing roles to false")
             else:
                 await ctx.send(f"Invalid input")
