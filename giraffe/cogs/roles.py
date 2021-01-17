@@ -1,4 +1,5 @@
 import discord
+import asyncio
 
 from discord.ext import commands
 from discord.utils import get
@@ -23,12 +24,25 @@ class Roles(commands.Cog):
         # if role and role is self-assignable: # TODO: Check if the role is already self-assignable. REQUIRES DATABASE
 
         if not role:
-            await ctx.send(f'{member.mention} Creating new self-assignable role **{name}**.')
-            role = await guild.create_role(name=name)
-        else:
-            await ctx.send(f'{member.mention} Added **{name}** to the list of self-assignable roles.')
+            await ctx.send(f'{member.mention} Role **{name}** does not exist. Create a new role? (yes|no)')
+            def check(m: discord.Message):
+                return m.author == member
+            try:
+                confirmation = await self.bot.wait_for('message', check=check, timeout=5.0)
+                content: str = confirmation.content.lower()
+                if content == 'y' or content == 'yes':
+                    role = await guild.create_role(name=name)
+                    await ctx.send(f'{member.mention} Created role **{name}**.')
+
+                else:
+                    await ctx.send(f'{member.mention} Operation cancelled.')
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(f'{member.mention} Operation cancelled -- took too long to respond.')
+                return 
 
         # TODO: add role to list of self assignable roles. REQUIRES DATABASE
+        await ctx.send(f'{member.mention} Added **{name}** to the list of self-assignable roles.')
 
     @commands.command(aliases=['remove', 'remove_role'])
     async def role_remove(self, ctx: commands.Context, *, name: str):
