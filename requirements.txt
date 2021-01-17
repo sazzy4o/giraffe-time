@@ -2,3 +2,4 @@ discord.py
 python-dotenv
 cassandra-driver
 dateparser
+apscheduler
