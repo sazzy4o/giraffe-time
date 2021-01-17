@@ -18,8 +18,8 @@ class Utils(commands.Cog):
     #         await channel.send('Welcome {0.mention}.'.format(member))
 
     @commands.command(aliases=['prune', 'purge'])
-    async def clear(self, ctx, *, count: str):
-        """Clear chat"""
+    async def clear(self, ctx, *, count: str=10):
+        """Clear chat, default clears last 10 messages"""
         if not ctx.message.author.guild_permissions.administrator:
             await ctx.send(f'{ctx.message.author.mention} Only an administrator may perform this action.')
         messages = [] #Empty list to put all the messages in the log
