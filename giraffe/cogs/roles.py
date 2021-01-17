@@ -98,7 +98,6 @@ class Roles(commands.Cog):
             role_id = row.role
             removeCount = 0
             role = get(ctx.guild.roles, id=role_id)
-            print(role_id)
             await ctx.send(f"Reseting **{role.name}**", delete_after=settings.TIMEOUT)
             for member in role.members:
                 try:
