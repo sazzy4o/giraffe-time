@@ -43,18 +43,19 @@ class Roles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_available(self, guild: discord.Guild):
-        # Perhaps refresh the database? It might be that roles have gone out of sync. 
+        # Perhaps refresh the database? It might be that roles have gone out of sync.
         pass
 
     ### COMMANDS ###
 
     @commands.command(aliases=['join'])
-    async def role_join(self, ctx: commands.Context, *, name: str):
+    async def role_join(self, ctx: commands.Context, *, name: str=None):
         """Join a self-assignable role"""
-
         timeout = settings.timeout(ctx.guild, self._session)
         member = ctx.message.author
-        if not get(ctx.guild.roles, name=name):
+        if name is None:
+            await ctx.send(f"{member.mention}, to join a self assignable role do `/join <role_name>`", delete_after=timeout)
+        elif not get(ctx.guild.roles, name=name):
             await ctx.send(f"{member.mention}, the role `{name}` does not exist, was that a typo?", delete_after=timeout)
         else:
             role = get(ctx.guild.roles, name=name)
@@ -70,12 +71,14 @@ class Roles(commands.Cog):
             await ctx.message.delete()
 
     @commands.command(aliases=['leave'])
-    async def role_leave(self, ctx: commands.Context, *, name: str):
+    async def role_leave(self, ctx: commands.Context, *, name: str=None):
         """Leave a self-assignable role"""
 
         timeout = settings.timeout(ctx.guild, self._session)
         member = ctx.message.author
-        if not get(ctx.guild.roles, name=name):
+        if name is None:
+            await ctx.send(f"{member.mention}, to leave a self assignable role do `/leave <role_name>`", delete_after=timeout)
+        elif not get(ctx.guild.roles, name=name):
             await ctx.send(f"{member.mention}, the role `{name}` does not exist, was that a typo?", delete_after=timeout)
         else:
             role = get(ctx.guild.roles, name=name)
@@ -118,15 +121,22 @@ class Roles(commands.Cog):
         await ctx.send(f"**Reset all members' self-assignable roles**", delete_after=timeout)
 
     @commands.command(aliases=['add', 'add_role'])
-    async def role_add(self, ctx: commands.Context, *, name: str):
+    async def role_add(self, ctx: commands.Context, *, name: str=None):
         """If the role exists, add it to the list of self-assignable roles. Otherwise create a self-assignable role."""
         if settings.delete_user_command(ctx.guild, self._session):
             await ctx.message.delete()
 
+
+
         timeout = settings.timeout(ctx.guild, self._session)
         member: discord.Member = ctx.author
+
         if not self._is_admin(member):
             await ctx.send(f'{member.mention} Only an administrator may perform this action.', delete_after=timeout)
+            return
+
+        if name is None:
+            await ctx.send(f"{member.mention}, to add a self assignable role do `/add <role_name>`", delete_after=timeout)
             return
 
         guild = ctx.guild
@@ -162,7 +172,7 @@ class Roles(commands.Cog):
         await ctx.send(f'{member.mention} Role **{name}** is now self-assignable.', delete_after=timeout)
 
     @commands.command(aliases=['remove', 'remove_role'])
-    async def role_remove(self, ctx: commands.Context, *, name: str):
+    async def role_remove(self, ctx: commands.Context, *, name: str=None):
         """Remove a role from the list of self-assignables. Does not delete the role."""
         if settings.delete_user_command(ctx.guild, self._session):
             await ctx.message.delete()
@@ -172,7 +182,9 @@ class Roles(commands.Cog):
         if not member.guild_permissions.administrator:
             await ctx.send(f'{member.mention} Only an administrator may perform this action.', delete_after=timeout)
             return
-
+        if name is None:
+            await ctx.send(f"{member.mention}, to remove a self assignable role do `/remove <role_name>`", delete_after=timeout)
+            return
         guild = ctx.guild
         role: discord.Role = get(guild.roles, name=name)
 
