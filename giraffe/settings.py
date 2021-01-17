@@ -1,0 +1,2 @@
+TIMEOUT = None
+DELETE_USER_COMMAND = False

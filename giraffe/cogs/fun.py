@@ -3,7 +3,7 @@ import os
 
 from discord.ext import commands
 
-class Hello(commands.Cog):
+class Fun(commands.Cog):
     def __init__(self, bot, session):
         self.bot = bot
         self.session = session
