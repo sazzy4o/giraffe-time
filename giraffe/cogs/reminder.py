@@ -7,6 +7,9 @@ import uuid
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dataclasses import dataclass
 from discord.ext import commands
+from tabulate import tabulate
+
+date_format = "%a, %b %d %Y, %I:%M:%S %p (%z)"
 
 @dataclass
 class ReminderMessage:
@@ -17,11 +20,15 @@ class ReminderMessage:
     time: datetime
     message_text: str
 
-async def send_message(bot,message:ReminderMessage):
+async def send_message(bot,session,message:ReminderMessage):
     channel = bot.get_channel(message.channel_id)
     guild = bot.get_guild(message.guild_id)
     role = discord.utils.get(guild.roles,name=message.role)
     await channel.send(f"{role.mention} {message.message_text}")
+    session.execute(
+        "DELETE FROM giraffetime.reminders WHERE id=%s IF EXISTS;", 
+        (message.row_id,)
+    )
 
 class Reminder(commands.Cog):
     def __init__(self, bot, session):
@@ -31,7 +38,19 @@ class Reminder(commands.Cog):
         self.scheduler.start()
 
     def schedule_message(self, message: ReminderMessage):
-        self.scheduler.add_job(send_message, 'date', run_date=message.time, args=[self.bot,message])
+        self.scheduler.add_job(send_message, 'date', run_date=message.time, args=[self.bot,self.session,message])
+
+    # /listreminders add <role> <time> <message>
+    @commands.command()
+    async def list_reminders(self, ctx: commands.Context, *, member: discord.Member = None):
+        rows = self.session.execute(
+            "select * from giraffetime.reminders where guild=%s;",
+            (ctx.guild.id,)
+        )
+
+        rows_formatted = [[str(self.bot.get_channel(x.channel)),x.role,x.time,x.message] for x in rows]
+
+        await ctx.send(f"```{tabulate(rows_formatted, headers=['Channel', 'Role', 'Time', 'Message'], tablefmt='orgtbl')}```")
 
     # /reminder add <role> <time> <message>
     @commands.command()
@@ -47,14 +66,13 @@ class Reminder(commands.Cog):
         # Prefered '2017-07-30T10:00-07:00'
         # Prefered '2017-07-30T10:00:00-07:00'
         parsed_time = dateparser.parse(time,settings={'RETURN_AS_TIMEZONE_AWARE': True})
-        time_formatted = parsed_time.strftime("%a, %b %d %Y, %I:%M:%S %p (%z)")
+        time_formatted = parsed_time.strftime(date_format)
 
         row_id = uuid.uuid4()
 
         guild_id = ctx.guild.id
         channel_id = message.channel.id
 
-        # 2021-01-06 18:16 GMT-0700
         self.session.execute(
             "INSERT INTO giraffetime.reminders (id,role,time,guild,channel,message) VALUES (%s,%s,%s,%s,%s,%s);", 
             (row_id,role,parsed_time.isoformat(),guild_id,channel_id,message_text)

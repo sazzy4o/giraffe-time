@@ -3,3 +3,4 @@ python-dotenv
 cassandra-driver
 dateparser
 apscheduler
+tabulate
