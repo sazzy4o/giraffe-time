@@ -19,7 +19,6 @@ session = cluster.connect()
 
 from discord.ext import commands
 from cogs.fun import Fun
-from cogs.role import Role
 from cogs.utils import Utils
 from cogs.reminder import Reminder
 from cogs.roles import Roles
@@ -30,7 +29,6 @@ client = discord.Client(intents=intent)
 bot = commands.Bot(command_prefix='!', intents=intent)
 
 # Add cogs here
-bot.add_cog(Role(bot,session))
 bot.add_cog(Fun(bot,session))
 bot.add_cog(Utils(bot,session))
 bot.add_cog(Reminder(bot,session))
