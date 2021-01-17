@@ -18,13 +18,16 @@ session = cluster.connect()
 
 from discord.ext import commands
 from cogs.hello import Hello
+from cogs.role import *
 from cogs.reminder import Reminder
 
-client = discord.Client()
+intent = discord.Intents.all()
+client = discord.Client(intents=intent)
 
-bot = commands.Bot(command_prefix='/')
+bot = commands.Bot(command_prefix='!', intents=intent)
 
 # Add cogs here
+bot.add_cog(Role(bot))
 bot.add_cog(Hello(bot,session))
 bot.add_cog(Reminder(bot,session))
 
