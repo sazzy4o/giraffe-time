@@ -18,9 +18,29 @@ class Utils(commands.Cog):
     #         await channel.send('Welcome {0.mention}.'.format(member))
 
     @commands.command(aliases=['prune', 'purge'])
-    async def clear(self, ctx):
+    async def clear(self, ctx, *, count: str):
         """The chat has been cleared ~ Aquafina water bottle"""
-        await ctx.send("." + "\n"*1500 +"The chat has been cleared ~ Aquafina water bottle")
+        if not ctx.message.author.guild_permissions.administrator:
+            await ctx.send(f'{member.mention} Only an administrator may perform this action.')
+        messages = [] #Empty list to put all the messages in the log
+        number = 0
+        try:
+            number = int(count) #Converting the amount of messages to delete to an integer
+        except:
+            await ctx.send(f'Please enter a number in the range of 1 to 99')
+            return
+
+        if number > 100 or number < 1:
+            await ctx.send(f'Please enter a number in the range of 1 to 100')
+            return
+
+        messagesRaw = await ctx.message.channel.history(limit=number).flatten()
+        for message in messagesRaw:
+            if message.pinned == False:
+                messages.append(message)
+
+        await ctx.message.channel.delete_messages(messages)
+
 
     @commands.command()
     async def set_timeout(self, ctx, *, timeout: str):
