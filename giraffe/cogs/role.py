@@ -1,11 +1,13 @@
 import discord
+import settings
 
 from discord.ext import commands
 from discord.utils import get
 
 class Role(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, session):
         self.bot = bot
+        self.session = session
         self._last_member = None
 
     @commands.command(aliases=['join'])
@@ -16,16 +18,17 @@ class Role(commands.Cog):
         member = ctx.message.author
 
         if not get(ctx.guild.roles, name=usrArgs):
-            await ctx.send(f"{member.mention}, the role `{usrArgs}` does not exist, was that a typo?")
+            await ctx.send(f"{member.mention}, the role `{usrArgs}` does not exist, was that a typo?", delete_after=settings.TIMEOUT)
         else:
             # TODO: Check if role is self assignable in database
             role = get(ctx.guild.roles, name=usrArgs)
             try:
                 await member.add_roles(role)
-                await ctx.send(f"{member.mention} has joined **{role.name}**")
+                await ctx.send(f"{member.mention} has joined **{role.name}**", delete_after=settings.TIMEOUT)
             except:
-                await ctx.send(f"{member.mention}, **{role.name}** is not in the self assignable roles. This incident will be reported.")
-        await ctx.message.delete()
+                await ctx.send(f"{member.mention}, **{role.name}** is not in the self assignable roles. This incident will be reported.", delete_after=settings.TIMEOUT)
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
 
     @commands.command(aliases=['leave'])
     async def role_leave(self, ctx):
