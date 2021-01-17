@@ -58,8 +58,11 @@ class Roles(commands.Cog):
         else:
             role = get(ctx.guild.roles, name=name)
             if self._registered(role):
-                await member.add_roles(role)
-                await ctx.send(f"{member.mention} has joined **{name}**", delete_after=settings.TIMEOUT)
+                try:
+                    await member.add_roles(role)
+                    await ctx.send(f"{member.mention} has joined **{name}**", delete_after=settings.TIMEOUT)
+                except:
+                    await ctx.send(f"{member.mention}, **{name}** is set as self-assignable but cannot be assigned due to insufficient bot permissions, please contact an administrator", delete_after=settings.TIMEOUT)
             else:
                 await ctx.send(f"{member.mention}, **{name}** is not a self-assignable role. This incident will be reported.", delete_after=settings.TIMEOUT)
         if settings.DELETE_USER_COMMAND:
@@ -75,8 +78,11 @@ class Roles(commands.Cog):
         else:
             role = get(ctx.guild.roles, name=name)
             if self._registered(role):
-                await member.remove_roles(role)
-                await ctx.send(f"{member.mention} has left **{role.name}**", delete_after=settings.TIMEOUT)
+                try:
+                    await member.remove_roles(role)
+                    await ctx.send(f"{member.mention} has left **{role.name}**", delete_after=settings.TIMEOUT)
+                except:
+                    await ctx.send(f"{member.mention}, **{name}** is set as self-assignable but cannot be assigned due to insufficient bot permissions, please contact an administrator", delete_after=settings.TIMEOUT)
             else:
                 await ctx.send(f"{member.mention}, **{role.name}** is not a self-assignable role. This incident will be reported.", delete_after=settings.TIMEOUT)
         await ctx.message.delete()
@@ -126,6 +132,9 @@ class Roles(commands.Cog):
             return
 
         if not role:
+            if not settings.CREATE_NEW_ROLE:
+                await ctx.send(f'{member.mention} Role **{name}** does not exist.', delete_after=settings.TIMEOUT)
+                return
             role = await guild.create_role(name=name)
             await ctx.send(f'{member.mention} Role **{name}** does not exist. Creating new role **{name}**.', delete_after=settings.TIMEOUT)
             # Confirmation prompt for creating a new role? Not asynchronous, so will not respond to other requests.
@@ -143,7 +152,7 @@ class Roles(commands.Cog):
             #         return
             # except asyncio.TimeoutError:
             #     await ctx.send(f'{member.mention} Operation cancelled -- took too long to respond.', delete_after=settings.TIMEOUT)
-            #     return 
+            #     return
 
         self._register(role)
         await ctx.send(f'{member.mention} Role **{name}** is now self-assignable.', delete_after=settings.TIMEOUT)
@@ -172,3 +181,21 @@ class Roles(commands.Cog):
 
         self._unregister(role)
         await ctx.send(f'{member.mention} Role **{name}** is no longer self-assignable.', delete_after=settings.TIMEOUT)
+
+    @commands.command(aliases=['list', 'roles'])
+    async def list_roles(self, ctx):
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
+        roles = "```\n"
+        rows = self._session.execute("SELECT role FROM giraffetime.roles WHERE guild=%s", (ctx.guild.id,))
+
+        for row in rows:
+            role_id = row.role
+            removeCount = 0
+            role = get(ctx.guild.roles, id=role_id)
+            if role is not None:
+                roles+=role.name + "\n"
+        roles+="```"
+        embed=discord.Embed(color=0xff1c8d)
+        embed.add_field(name="Self Assignable Roles", value=roles, inline=True)
+        await ctx.send(embed=embed, delete_after=settings.TIMEOUT)
