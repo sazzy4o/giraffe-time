@@ -19,14 +19,15 @@ session = cluster.connect()
 from discord.ext import commands
 from cogs.hello import Hello
 from cogs.reminder import Reminder
+from cogs.roles import Roles
 
 client = discord.Client()
 
-bot = commands.Bot(command_prefix='/')
+bot = commands.Bot(command_prefix='%')
 
 # Add cogs here
 bot.add_cog(Hello(bot,session))
 bot.add_cog(Reminder(bot))
-
+bot.add_cog(Roles(bot))
 
 bot.run(os.getenv('DISCORD_TOKEN'))
