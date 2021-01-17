@@ -1,5 +1,5 @@
 # Giraffe Time
-Uses Python3
+Uses Python 3.9
 
 ## Dependencies
 ```
