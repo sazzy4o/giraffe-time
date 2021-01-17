@@ -7,9 +7,11 @@ load_dotenv() # Load environment variables from .env file (located at giraffe/.e
 from discord.ext import commands
 from cogs.hello import Hello
 from cogs.role import *
-client = discord.Client()
 
-bot = commands.Bot(command_prefix='\\')
+intent = discord.Intents.all()
+client = discord.Client(intents=intent)
+
+bot = commands.Bot(command_prefix='!', intents=intent)
 
 # Add cogs here
 bot.add_cog(Hello(bot))
