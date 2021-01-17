@@ -132,6 +132,9 @@ class Roles(commands.Cog):
             return
 
         if not role:
+            if not settings.CREATE_NEW_ROLE:
+                await ctx.send(f'{member.mention} Role **{name}** does not exist.', delete_after=settings.TIMEOUT)
+                return
             role = await guild.create_role(name=name)
             await ctx.send(f'{member.mention} Role **{name}** does not exist. Creating new role **{name}**.', delete_after=settings.TIMEOUT)
             # Confirmation prompt for creating a new role? Not asynchronous, so will not respond to other requests.
@@ -178,3 +181,21 @@ class Roles(commands.Cog):
 
         self._unregister(role)
         await ctx.send(f'{member.mention} Role **{name}** is no longer self-assignable.', delete_after=settings.TIMEOUT)
+
+    @commands.command(aliases=['list', 'roles'])
+    async def list_roles(self, ctx):
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
+        roles = "```\n"
+        rows = self._session.execute("SELECT role FROM giraffetime.roles WHERE guild=%s", (ctx.guild.id,))
+
+        for row in rows:
+            role_id = row.role
+            removeCount = 0
+            role = get(ctx.guild.roles, id=role_id)
+            if role is not None:
+                roles+=role.name + "\n"
+        roles+="```"
+        embed=discord.Embed(color=0xff1c8d)
+        embed.add_field(name="Self Assignable Roles", value=roles, inline=True)
+        await ctx.send(embed=embed, delete_after=settings.TIMEOUT)
