@@ -24,6 +24,6 @@ class Role(commands.Cog):
                 await member.add_roles(role)
                 await ctx.send(f"{member.mention} has joined **{role.name}**")
             except:
-                await ctx.send("Not enough permissions to set this role, this incident will be reported")
+                await ctx.send(f"{role.name} is not in the self assignable roles. This incident will be reported.")
 
         # self.bot.delete_message(ctx.message)
