@@ -1,5 +1,4 @@
 import discord
-import asyncio
 import settings
 
 from discord.ext import commands
@@ -36,7 +35,7 @@ class Roles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
-        self._session.execute("DELETE FROM giraffetime.roles WHERE guild_id=%s", guild.id)
+        self._session.execute("DELETE FROM giraffetime.roles WHERE guild_id=%s", (guild.id,))
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
@@ -49,24 +48,86 @@ class Roles(commands.Cog):
 
     ### COMMANDS ###
 
+    @commands.command(aliases=['join'])
+    async def role_join(self, ctx: commands.Context, *, name: str):
+        """Join a role"""
+
+        member = ctx.message.author
+        if not get(ctx.guild.roles, name=name):
+            await ctx.send(f"{member.mention}, the role `{name}` does not exist, was that a typo?", delete_after=settings.TIMEOUT)
+        else:
+            role = get(ctx.guild.roles, name=name)
+            if self._registered(role):
+                await member.add_roles(role)
+                await ctx.send(f"{member.mention} has joined **{name}**", delete_after=settings.TIMEOUT)
+            else:
+                await ctx.send(f"{member.mention}, **{name}** is not a self-assignable role. This incident will be reported.", delete_after=settings.TIMEOUT)
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
+
+    @commands.command(aliases=['leave'])
+    async def role_leave(self, ctx: commands.Context, *, name: str):
+        """Leave role"""
+
+        member = ctx.message.author
+        if not get(ctx.guild.roles, name=name):
+            await ctx.send(f"{member.mention}, the role `{name}` does not exist, was that a typo?", delete_after=settings.TIMEOUT)
+        else:
+            role = get(ctx.guild.roles, name=name)
+            if self._registered(role):
+                await member.remove_roles(role)
+                await ctx.send(f"{member.mention} has left **{role.name}**", delete_after=settings.TIMEOUT)
+            else:
+                await ctx.send(f"{member.mention}, **{role.name}** is not a self-assignable role. This incident will be reported.", delete_after=settings.TIMEOUT)
+        await ctx.message.delete()
+
+    @commands.command(aliases=['start_new_semester'])
+    async def start_new_season(self, ctx: commands.Context):
+        """Remove roles from all"""
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
+
+        member = ctx.message.author
+        if not self._is_admin(member):
+            await ctx.send(f"{member.mention} is not in the Admins role, This incident will be reported.", delete_after=settings.TIMEOUT)
+            return
+
+        await ctx.send(f"**Starting new semester**")
+        rows = self._session.execute("SELECT role FROM giraffetime.roles WHERE guild=%s", (ctx.guild.id,)) 
+        for row in rows:
+            role_id = row.role
+            removeCount = 0
+            role = get(ctx.guild.roles, id=role_id)
+            await ctx.send(f"Reseting **{role.name}**", delete_after=settings.TIMEOUT)
+            for member in role.members:
+                try:
+                    await member.remove_roles(role)
+                    removeCount+=1
+                except:
+                    await ctx.send(f"An error occurred whilst removing {member.name} from role **{role.name}**.", delete_after=settings.TIMEOUT)
+            await ctx.send(f"Removed **{removeCount}** members from **{role.name}**", delete_after=settings.TIMEOUT)
+        await ctx.send(f"**Reset all members' self-assignable roles**", delete_after=settings.TIMEOUT)
+
     @commands.command(aliases=['add', 'add_role'])
     async def role_add(self, ctx: commands.Context, *, name: str):
         """If the role exists, add it to the list of self-assignable roles. Otherwise create a self-assignable role."""
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
 
         member: discord.Member = ctx.author
         if not self._is_admin(member):
-            await ctx.send(f'{member.mention} Only an administrator may perform this action.')
+            await ctx.send(f'{member.mention} Only an administrator may perform this action.', delete_after=settings.TIMEOUT)
             return
 
         guild = ctx.guild
         role: discord.Role = get(guild.roles, name=name)
         if role and self._registered(role):
-            await ctx.send(f'{member.mention} Role **{name}** is already self-assignable.')
+            await ctx.send(f'{member.mention} Role **{name}** is already self-assignable.', delete_after=settings.TIMEOUT)
             return
 
         if not role:
             role = await guild.create_role(name=name)
-            await ctx.send(f'{member.mention} Role **{name}** does not exist. Creating new role **{name}**.')
+            await ctx.send(f'{member.mention} Role **{name}** does not exist. Creating new role **{name}**.', delete_after=settings.TIMEOUT)
             # Confirmation prompt for creating a new role? Not asynchronous, so will not respond to other requests.
             # await ctx.send(f'{member.mention} Role **{name}** does not exist. Create a new role? (yes|no)')
             # def check(m: discord.Message):
@@ -76,103 +137,38 @@ class Roles(commands.Cog):
             #     content: str = confirmation.content.lower()
             #     if content == 'y' or content == 'yes':
             #         role = await guild.create_role(name=name)
-            #         await ctx.send(f'{member.mention} Created role **{name}**.')
+            #         await ctx.send(f'{member.mention} Created role **{name}**.', delete_after=settings.TIMEOUT)
             #     else:
-            #         await ctx.send(f'{member.mention} Operation cancelled.')
+            #         await ctx.send(f'{member.mention} Operation cancelled.', delete_after=settings.TIMEOUT)
             #         return
             # except asyncio.TimeoutError:
-            #     await ctx.send(f'{member.mention} Operation cancelled -- took too long to respond.')
+            #     await ctx.send(f'{member.mention} Operation cancelled -- took too long to respond.', delete_after=settings.TIMEOUT)
             #     return 
 
         self._register(role)
-        await ctx.send(f'{member.mention} Role **{name}** is now self-assignable.')
+        await ctx.send(f'{member.mention} Role **{name}** is now self-assignable.', delete_after=settings.TIMEOUT)
 
     @commands.command(aliases=['remove', 'remove_role'])
     async def role_remove(self, ctx: commands.Context, *, name: str):
         """Remove a role from the list of self-assignables. Does not delete the role."""
+        if settings.DELETE_USER_COMMAND:
+            await ctx.message.delete()
 
         member: discord.Member = ctx.author
         if not member.guild_permissions.administrator:
-            await ctx.send(f'{member.mention} Only an administrator may perform this action.')
+            await ctx.send(f'{member.mention} Only an administrator may perform this action.', delete_after=settings.TIMEOUT)
             return
 
         guild = ctx.guild
         role: discord.Role = get(guild.roles, name=name)
 
         if not role:
-            await ctx.send(f'{member.mention} Role **{name}** does not exist.')
+            await ctx.send(f'{member.mention} Role **{name}** does not exist.', delete_after=settings.TIMEOUT)
             return
 
         if role and not self._registered(role):
-            await ctx.send(f'{member.mention} Role **{name}** is already non-self-assignable.')
+            await ctx.send(f'{member.mention} Role **{name}** is already non-self-assignable.', delete_after=settings.TIMEOUT)
             return
 
         self._unregister(role)
-        await ctx.send(f'{member.mention} Role **{name}** is no longer self-assignable.')
-
-    @commands.command(aliases=['join'])
-    async def role_join(self, ctx):
-        """set role"""
-        usrArgs = ctx.message.content.split(' ', 1)[1]
-
-        member = ctx.message.author
-
-        if not get(ctx.guild.roles, name=usrArgs):
-            await ctx.send(f"{member.mention}, the role `{usrArgs}` does not exist, was that a typo?", delete_after=settings.TIMEOUT)
-        else:
-            # TODO: Check if role is self assignable in database
-            role = get(ctx.guild.roles, name=usrArgs)
-            try:
-                await member.add_roles(role)
-                await ctx.send(f"{member.mention} has joined **{role.name}**", delete_after=settings.TIMEOUT)
-            except:
-                await ctx.send(f"{member.mention}, **{role.name}** is not in the self assignable roles. This incident will be reported.", delete_after=settings.TIMEOUT)
-        if settings.DELETE_USER_COMMAND:
-            await ctx.message.delete()
-
-    @commands.command(aliases=['leave'])
-    async def role_leave(self, ctx):
-        """set role"""
-        usrArgs = ctx.message.content.split(' ', 1)[1]
-
-        member = ctx.message.author
-
-        if not get(ctx.guild.roles, name=usrArgs):
-            await ctx.send(f"{member.mention}, the role `{usrArgs}` does not exist, was that a typo?")
-        else:
-            # TODO: Check if role is self assignable in database
-            role = get(ctx.guild.roles, name=usrArgs)
-            try:
-                await member.remove_roles(role)
-                await ctx.send(f"{member.mention} has left **{role.name}**")
-            except:
-                await ctx.send(f"{member.mention}, **{role.name}** is not in the self assignable roles. This incident will be reported.")
-        await ctx.message.delete()
-
-    @commands.command(aliases=['start_new_semester'])
-    async def start_new_season(self, ctx):
-        """set role"""
-        member = ctx.message.author
-        if self._is_admin(member):
-            await ctx.send(f"**Starting new semester**")
-            tempList = ["Minions", "Pokemon", "Sample Role 1", "ECE 404"]
-            roles = []
-            for item in tempList:
-                newrole = get(ctx.guild.roles, name=item)
-                if newrole:
-                    roles.append(newrole)
-            #TODO: Get roles that are self assignable from database
-            for role in roles:
-                removeCount = 0
-                await ctx.send(f"Reseting **{role.name}**")
-                for member in role.members:
-                    try:
-                        await member.remove_roles(role)
-                        removeCount+=1
-                    except:
-                        await ctx.send(f"{member.mention}, **{role.name}** is not in the self assignable roles. This incident will be reported.")
-                await ctx.send(f"removed **{removeCount}** members from **{role.name}**")
-            await ctx.send(f"**Reset all members self assignable roles**")
-            await ctx.message.delete()
-        else:
-            await ctx.send(f"{member.mention} is not in the Admins role, This incident will be reported.")
+        await ctx.send(f'{member.mention} Role **{name}** is no longer self-assignable.', delete_after=settings.TIMEOUT)
