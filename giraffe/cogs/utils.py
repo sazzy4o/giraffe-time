@@ -21,7 +21,7 @@ class Utils(commands.Cog):
     async def clear(self, ctx, *, count: str):
         """The chat has been cleared ~ Aquafina water bottle"""
         if not ctx.message.author.guild_permissions.administrator:
-            await ctx.send(f'{member.mention} Only an administrator may perform this action.')
+            await ctx.send(f'{ctx.message.author.mention} Only an administrator may perform this action.')
         messages = [] #Empty list to put all the messages in the log
         number = 0
         try:
@@ -47,10 +47,10 @@ class Utils(commands.Cog):
         """The chat has been cleared ~ Aquafina water bottle"""
         if ctx.message.author.guild_permissions.administrator:
             if timeout.lower() == "none":
-                settings.TIMEOUT = None
+                self.session.execute("INSERT INTO giraffetime.settings (guild, msg_timeout) VALUES (%s, NULL)", (ctx.guild.id,))
                 await ctx.send(f"Set timeout to never expire")
             elif timeout.isnumeric():
-                settings.TIMEOUT = int(timeout)
+                self.session.execute("INSERT INTO giraffetime.settings (guild, msg_timeout) VALUES (%s, %s)", (ctx.guild.id, int(timeout)))
                 await ctx.send(f"Set timeout to {timeout} seconds")
             else:
                 await ctx.send(f"Invalid input")
@@ -60,10 +60,10 @@ class Utils(commands.Cog):
         """The chat has been cleared ~ Aquafina water bottle"""
         if ctx.message.author.guild_permissions.administrator:
             if new_caller.lower() == "true":
-                settings.DELETE_USER_COMMAND = True
+                self.session.execute("INSERT INTO giraffetime.settings (guild, delete_user_cmd) VALUES (%s, True)", (ctx.guild.id,))
                 await ctx.send(f"Set delete callers message to true")
             elif new_caller.lower() == "false":
-                settings.DELETE_USER_COMMAND = False
+                self.session.execute("INSERT INTO giraffetime.settings (guild, delete_user_cmd) VALUES (%s, False)", (ctx.guild.id,))
                 await ctx.send(f"Set delete callers message to false")
             else:
                 await ctx.send(f"Invalid input")
@@ -73,10 +73,10 @@ class Utils(commands.Cog):
         """The chat has been cleared ~ Aquafina water bottle"""
         if ctx.message.author.guild_permissions.administrator:
             if new_state.lower() == "true":
-                settings.CREATE_NEW_ROLE = True
+                self.session.execute("INSERT INTO giraffetime.settings (guild, create_roles) VALUES (%s, True)", (ctx.guild.id,))
                 await ctx.send(f"Set create missing roles to true")
             elif new_state.lower() == "false":
-                settings.CREATE_NEW_ROLE = False
+                self.session.execute("INSERT INTO giraffetime.settings (guild, create_roles) VALUES (%s, False)", (ctx.guild.id,))
                 await ctx.send(f"Set create missing roles to false")
             else:
                 await ctx.send(f"Invalid input")
