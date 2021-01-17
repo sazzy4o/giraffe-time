@@ -29,7 +29,7 @@ bot = commands.Bot(command_prefix='!', intents=intent)
 # Add cogs here
 bot.add_cog(Role(bot))
 bot.add_cog(Hello(bot,session))
-bot.add_cog(Reminder(bot))
+bot.add_cog(Reminder(bot,session))
 
 
 bot.run(os.getenv('DISCORD_TOKEN'))

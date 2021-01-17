@@ -29,4 +29,4 @@ class Hello(commands.Cog):
             await ctx.send(f'(DB Version - {version}) Hello {member.name}... This feels familiar.')
         self._last_member = member
 
-        await message.delete()
+        # await message.delete()
