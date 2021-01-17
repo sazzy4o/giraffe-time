@@ -1,8 +1,11 @@
 # Giraffe Time
 Uses Python3
-Needs pip to install dependencies
 
-## Install
+## Dependencies
 ```
 python3 -m pip install -r requirements.txt
 ```
+
+## Documentation
+
+[https://thanks-sam-for-all-your-hard.work/](https://thanks-sam-for-all-your-hard.work/)
