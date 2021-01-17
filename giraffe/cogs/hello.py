@@ -4,8 +4,9 @@ import os
 from discord.ext import commands
 
 class Hello(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, session):
         self.bot = bot
+        self.session = session
         self._last_member = None
 
     # Leaving this here in case we need a listener example
@@ -20,10 +21,12 @@ class Hello(commands.Cog):
         """Says hello"""
         member = member or ctx.author
         message: discord.Message = ctx.message
+        row = self.session.execute("select release_version from system.local").one()
+        version = row.release_version
         if self._last_member is None or self._last_member.id != member.id:
-            await ctx.send('Hello {0.name}~'.format(member))
+            await ctx.send(f'(DB Version - {version}) Hello {member.name}~')
         else:
-            await ctx.send('Hello {0.name}... This feels familiar.'.format(member))
+            await ctx.send(f'(DB Version - {version}) Hello {member.name}... This feels familiar.')
         self._last_member = member
 
         await message.delete()
