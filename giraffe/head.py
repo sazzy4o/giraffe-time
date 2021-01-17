@@ -22,6 +22,7 @@ from cogs.fun import Fun
 from cogs.role import Role
 from cogs.utils import Utils
 from cogs.reminder import Reminder
+from cogs.roles import Roles
 
 intent = discord.Intents.all()
 client = discord.Client(intents=intent)
@@ -33,6 +34,6 @@ bot.add_cog(Role(bot,session))
 bot.add_cog(Fun(bot,session))
 bot.add_cog(Utils(bot,session))
 bot.add_cog(Reminder(bot,session))
-
+bot.add_cog(Roles(bot,session))
 
 bot.run(os.getenv('DISCORD_TOKEN'))
